@@ -41,6 +41,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: SIGEC-APK-debug
-          path: android-project/**/build/outputs/apk/debug/*.apk
-          if-no-files-foun
+          path: android-project/**/build/outputs/apk/debug/*.apkif-no-files-foun
           d: error
