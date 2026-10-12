@@ -26,10 +26,19 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
+      - name: Poner la firma fija y el numero de version
+        env:
+          KS_B64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$KS_B64" | base64 -d > android/sigec.jks
+          sed -i '0,/^android {/s//android {\n    signingConfigs {\n        debug {\n            storeFile file("..\/sigec.jks")\n            storePassword System.getenv("KS_PASS")\n            keyAlias "sigec"\n            keyPassword System.getenv("KS_PASS")\n        }\n    }/' android/app/build.gradle
+          sed -i "s/versionCode 1/versionCode ${{ github.run_number }}/" android/app/build.gradle
       - name: Aceptar licencias de Android
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
       - name: Compilar APK
         working-directory: android
+        env:
+          KS_PASS: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
