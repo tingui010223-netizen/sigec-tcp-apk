@@ -1,46 +1,56 @@
-
 name: Compilar APK SIGEC
 
 on:
-  workflow_dispatch:
+workflow_dispatch:
 
 permissions:
-  contents: read
+contents: read
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Descargar repositorio
-        uses: actions/checkout@v4
+build:
+runs-on: ubuntu-latest
 
-      - name: Preparar Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
+steps:
+  - name: Descargar repositorio
+    uses: actions/checkout@v4
 
-      - name: Descomprimir proyecto
-        run: |
-          mkdir -p android-project
-          unzip -q SIGEC_Almacen_Proyecto_Android.zip -d android-project
-          find android-project -maxdepth 3 -type f | head -80
-          GRADLEW="$(find android-project -type f -name gradlew -print -quit)"
-          if [ -z "$GRADLEW" ]; then
-            echo "No se encontró gradlew en el ZIP"
-            exit 1
-          fi
-          PROJECT_DIR="$(dirname "$GRADLEW")"
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          chmod +x "$GRADLEW"
+  - name: Preparar Java
+    uses: actions/setup-java@v4
+    with:
+      distribution: temurin
+      java-version: '17'
 
-      - name: Compilar APK
-        run: ./gradlew assembleDebug
-        working-directory: ${{ env.PROJECT_DIR }}
+  - name: Preparar Gradle
+    uses: gradle/actions/setup-gradle@v4
+    with:
+      gradle-version: '8.7'
 
-      - name: Guardar APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: SIGEC-APK-debug
-          path: android-project/**/build/outputs/apk/debug/*.apkif-no-files-foun
-          d: error
+  - name: Descomprimir proyecto
+    run: |
+      mkdir -p android-project
+      unzip -q SIGEC_Almacen_Proyecto_Android.zip -d android-project
+      find android-project -maxdepth 4 -type f | head -100
+
+  - name: Compilar APK
+    run: |
+      GRADLEW="$(find . -type f -name gradlew -print -quit)"
+      if [ -n "$GRADLEW" ]; then
+        chmod +x "$GRADLEW"
+        cd "$(dirname "$GRADLEW")"
+        ./gradlew assembleDebug
+      else
+        GRADLE_FILE="$(find android-project -type f -name build.gradle -o -name build.gradle.kts | head -1)"
+        if [ -z "$GRADLE_FILE" ]; then
+          echo "ERROR: No se encontró un proyecto Gradle Android válido."
+          exit 1
+        fi
+        cd "$(dirname "$GRADLE_FILE")"
+        gradle assembleDebug
+      fi
+
+  - name: Guardar APK
+    uses: actions/upload-artifact@v4
+    with:
+      name: SIGEC-APK-debug
+      path: android-project/**/build/outputs/apk/debug/*.apk
+      if-no-files-found: error
