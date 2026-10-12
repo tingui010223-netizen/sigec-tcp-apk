@@ -12,7 +12,7 @@ runs-on: ubuntu-latest
 steps:
 - name: Descargar repositorio
 uses: actions/checkout@v4
-  - name: Preparar Java
+- name: Preparar Java
     uses: actions/setup-java@v4
     with:
       distribution: temurin
