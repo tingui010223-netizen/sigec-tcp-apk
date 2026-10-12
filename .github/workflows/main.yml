@@ -1,49 +1,20 @@
 name: Compilar APK SIGEC
-'on':
-  workflow_dispatch:
-permissions: contents: read
-jobs: build: runs-on: ubuntu-latest
+
+on:
+workflow_dispatch:
+
+permissions:
+contents: read
+
+jobs:
+build:
+runs-on: ubuntu-latest
 steps:
-  - name: Descargar repositorio
-    uses: actions/checkout@v4
+- name: Descargar repositorio
+uses: actions/checkout@v4
 
   - name: Preparar Java
     uses: actions/setup-java@v4
     with:
       distribution: temurin
       java-version: '17'
-
-  - name: Preparar Gradle
-    uses: gradle/actions/setup-gradle@v4
-    with:
-      gradle-version: '8.7'
-
-  - name: Descomprimir proyecto
-    run: |
-      mkdir -p android-project
-      unzip -q SIGEC_Almacen_Proyecto_Android.zip -d android-project
-      find android-project -maxdepth 5 -type f | head -100
-
-  - name: Compilar APK
-    run: |
-      GRADLEW="$(find android-project -type f -name gradlew -print -quit)"
-      if [ -n "$GRADLEW" ]; then
-        chmod +x "$GRADLEW"
-        cd "$(dirname "$GRADLEW")"
-        ./gradlew assembleDebug
-      else
-        GRADLE_FILE="$(find android-project -type f \( -name build.gradle -o -name build.gradle.kts \) -print -quit)"
-        if [ -z "$GRADLE_FILE" ]; then
-          echo "ERROR: No se encontró un proyecto Gradle Android válido."
-          exit 1
-        fi
-        cd "$(dirname "$GRADLE_FILE")"
-        gradle assembleDebug
-      fi
-
-  - name: Guardar APK
-    uses: actions/upload-artifact@v4
-    with:
-      name: SIGEC-APK-debug
-      path: android-project/**/build/outputs/apk/debug/*.apk
-      if-no-files-found: error
