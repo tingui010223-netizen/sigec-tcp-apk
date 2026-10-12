@@ -1,0 +1,13 @@
+{
+  "name": "sigec-almacen-control-inventario",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
+    "jsbarcode": "3.11.5"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
+}
