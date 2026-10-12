@@ -1,15 +1,8 @@
+
 name: Compilar APK SIGEC
-
-on:
-workflow_dispatch:
-
-permissions:
-contents: read
-
-jobs:
-build:
-runs-on: ubuntu-latest
-
+on: workflow_dispatch:
+permissions: contents: read
+jobs: build: runs-on: ubuntu-latest
 steps:
   - name: Descargar repositorio
     uses: actions/checkout@v4
@@ -29,17 +22,17 @@ steps:
     run: |
       mkdir -p android-project
       unzip -q SIGEC_Almacen_Proyecto_Android.zip -d android-project
-      find android-project -maxdepth 4 -type f | head -100
+      find android-project -maxdepth 5 -type f | head -100
 
   - name: Compilar APK
     run: |
-      GRADLEW="$(find . -type f -name gradlew -print -quit)"
+      GRADLEW="$(find android-project -type f -name gradlew -print -quit)"
       if [ -n "$GRADLEW" ]; then
         chmod +x "$GRADLEW"
         cd "$(dirname "$GRADLEW")"
         ./gradlew assembleDebug
       else
-        GRADLE_FILE="$(find android-project -type f -name build.gradle -o -name build.gradle.kts | head -1)"
+        GRADLE_FILE="$(find android-project -type f \( -name build.gradle -o -name build.gradle.kts \) -print -quit)"
         if [ -z "$GRADLE_FILE" ]; then
           echo "ERROR: No se encontró un proyecto Gradle Android válido."
           exit 1
