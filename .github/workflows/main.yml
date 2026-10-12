@@ -12,7 +12,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: android-actions/setup-android@v3
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -27,6 +26,8 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
+      - name: Aceptar licencias de Android
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
       - name: Compilar APK
         working-directory: android
         run: |
