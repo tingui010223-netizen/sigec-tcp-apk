@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0D1B2A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cuadre de Caja">
+<link rel="manifest" href="cuadre.webmanifest">
+<link rel="icon" href="icons/cuadre-192.png">
+<link rel="apple-touch-icon" href="icons/cuadre-192.png">
+
+<title>Cuadre de Caja</title>
+<style>
+:root{
+  --bg:#0D1B2A;--surface:#142030;--card:#1A2C40;--border:#2A4A68;--border2:#3D6690;
+  --accent:#1FD9C4;--accent2:#3FA9F5;--gold:#FFC247;--danger:#FF6B78;
+  --warn:#FFB37A;--success:#4FE0CE;--text:#FFFFFF;--muted:#A9C2DA;
+  --mono:'Courier New',monospace;--sans:'Segoe UI',system-ui,sans-serif;--radius:6px;
+  --blue-med:#3FA9F5;
+}
+html.contraste{
+  --bg:#FFFFFF;--surface:#F2F2F2;--card:#FFFFFF;--border:#000000;--border2:#000000;
+  --accent:#0047AB;--accent2:#0047AB;--gold:#8A6D00;--danger:#B00020;
+  --warn:#8A5300;--success:#0A6E31;--text:#000000;--muted:#3A3A3A;
+}
+html.contraste body{background:#FFFFFF!important}
+html.contraste .card,html.contraste #topbar{border-width:2px!important}
+html.contraste input,html.contraste select{border-width:2px!important;font-weight:600}
+html.contraste .topbar-btn{border-width:2px!important;font-weight:700}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:17px}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+#topbar{display:flex;align-items:center;gap:12px;padding:0 20px;height:56px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;flex-wrap:wrap}
+.logo-text .l1{font-size:15px;font-weight:900;color:var(--blue-med)}.logo-text .l1 span{color:var(--accent)}
+.logo-text .l2{font-size:9px;color:var(--muted);letter-spacing:.06em}
+.spacer{flex:1}
+.topbar-btn{padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--card);color:var(--text);font-size:12px;cursor:pointer;transition:.15s}
+.topbar-btn:hover{border-color:var(--accent);color:var(--accent)}
+.topbar-btn.primary{background:var(--accent);color:#0D1B2A;border-color:var(--accent);font-weight:700}
+main{max-width:900px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:18px}
+.view-title{font-size:19px;font-weight:700;display:flex;align-items:center;gap:10px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select{background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:var(--radius);font-family:var(--sans);font-size:13px;outline:none}
+.field input:focus{border-color:var(--accent)}
+.denom-row{display:grid;grid-template-columns:90px 1fr 110px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(31,58,84,.5)}
+.denom-row:last-child{border:none}
+.denom-label{font-family:var(--mono);font-weight:700;font-size:15px}
+.denom-row input{background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:9px 10px;border-radius:var(--radius);font-size:16px;text-align:center;outline:none}
+.denom-row input:focus{border-color:var(--accent)}
+.denom-sub{font-family:var(--mono);text-align:right;font-weight:700;color:var(--accent);font-size:14px}
+.resumen-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(31,58,84,.6);font-size:15px}
+.resumen-row:last-child{border:none}
+.resumen-row .lbl{color:var(--muted)}
+.resumen-row .val{font-family:var(--mono);font-weight:700}
+.resumen-row.total .val{color:var(--accent);font-size:18px}
+.resumen-row .val input{background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:7px 11px;border-radius:var(--radius);font-family:var(--mono);font-size:14px;text-align:right;width:140px;outline:none}
+.resumen-row .val input:focus{border-color:var(--accent)}
+.diff-ok{color:var(--success)!important}
+.diff-bad{color:var(--danger)!important}
+#h_observaciones{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:10px 12px;border-radius:var(--radius);font-size:14px;font-family:inherit;line-height:1.5;outline:none;resize:vertical;min-height:110px}
+#h_observaciones:focus{border-color:var(--accent)}
+.firma-box{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:6px}
+.firma-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px}
+.firma-field input{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:var(--radius);font-size:13px;outline:none;margin-bottom:8px}
+.firma-line{border-top:1px solid var(--border2);margin-top:26px;padding-top:6px;font-size:11px;color:var(--muted);text-align:center}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{padding:9px 16px;border-radius:var(--radius);border:none;font-size:13px;font-weight:600;cursor:pointer}
+.btn-p{background:var(--accent);color:#0D1B2A}
+.btn-s{background:var(--bg);color:var(--text);border:1px solid var(--border2)}
+.btn-s:hover{border-color:var(--accent)}
+#toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#0D1B2A;font-weight:700;font-size:13px;padding:10px 18px;border-radius:var(--radius);opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none;z-index:999}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast.error{background:var(--danger);color:#fff}
+#activation-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0A1628,#0A2744,#0D1B2A)}
+.act-box{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:36px;width:380px;max-width:92vw;text-align:center}
+.act-title{font-size:18px;font-weight:900;margin-bottom:4px}.act-title span{color:var(--accent)}
+.act-sub{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:22px}
+.act-field{margin-bottom:12px;text-align:left}
+.act-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px}
+.act-field input{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:10px 12px;border-radius:var(--radius);font-size:14px;outline:none}
+.act-field input:focus{border-color:var(--accent)}
+.act-btn{width:100%;padding:12px;background:var(--accent);color:#0D1B2A;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;margin-top:6px}
+.act-btn:hover{opacity:.88}
+.act-err{color:var(--danger);font-size:12px;margin-top:10px;min-height:16px}
+.licencia-badge{font-size:10px;color:var(--muted);padding:3px 10px}
+#app-wrap{display:none}
+@media print{
+  :root{--bg:#fff;--surface:#fff;--card:#fff;--text:#000;--muted:#222;--accent:#000;--accent2:#000;--gold:#000;--danger:#000;--warn:#000;--success:#000;--border:#000;--border2:#000}
+  #topbar,.no-print,.np{display:none!important}
+  body{background:#fff!important;color:#000!important;min-height:0}
+  main{padding:0}
+  .card{border:1px solid #000;break-inside:avoid}
+  input,textarea{color:#000!important;background:#fff!important;border:1px solid #000!important}
+  input::placeholder,textarea::placeholder{color:transparent}
+  textarea{resize:none}
+  #card_firmas{break-inside:avoid}
+  #card_firmas .firma-field input{height:38px}
+  #card_firmas .firma-line{margin-top:60px;border-top:1px solid #000}
+}
+/* ===== Capa móvil / PWA ===== */
+html{-webkit-text-size-adjust:100%}
+body{padding-bottom:env(safe-area-inset-bottom)}
+#topbar{padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}
+#btnMenu{display:none;font-size:20px;padding:6px 12px;line-height:1}
+#navScrim{display:none}
+@media (max-width:820px){
+  html{font-size:16px}
+  input,select,textarea{font-size:16px!important}
+  button{min-height:40px}
+  #topbar{height:auto!important;min-height:54px;flex-wrap:nowrap!important;overflow-x:auto;padding:6px 10px!important;gap:8px!important;-webkit-overflow-scrolling:touch;padding-top:max(6px,env(safe-area-inset-top))!important}
+  #topbar>*{flex-shrink:0}
+  .topbar-btn{white-space:nowrap}
+  .logo img{height:34px!important}
+  #btnMenu{display:inline-block}
+  #sidebar{position:fixed!important;top:0;bottom:0;left:0;width:78vw!important;max-width:290px;z-index:1200;transform:translateX(-102%);transition:transform .2s ease;box-shadow:4px 0 24px rgba(0,0,0,.5);padding-top:env(safe-area-inset-top)}
+  body.nav-open #sidebar{transform:none}
+  body.nav-open #navScrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1100}
+  .nav-item{padding:14px 18px!important;font-size:15px!important}
+  #main{padding:14px 12px!important}
+  main{padding:12px!important}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr!important}
+  .kpi-row{grid-template-columns:1fr 1fr!important}
+  .kpi .kpi-value{font-size:18px!important}
+  .card{padding:12px!important;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .card table{min-width:560px}
+  .toolbar{gap:6px}
+  .toolbar .field{max-width:none!important;flex:1 1 140px}
+  .actions-cell button{min-height:34px;padding:6px 10px}
+  .login-box,.act-box{padding:24px!important}
+  .apariencia-box,.producto-box{padding:16px!important;max-height:92vh}
+  .firma-box{grid-template-columns:1fr!important;gap:12px}
+  .denom-row{grid-template-columns:70px 1fr 90px!important;gap:6px!important}
+  .resumen-row .val input{width:110px!important}
+  #toast{left:12px!important;right:12px!important;bottom:calc(16px + env(safe-area-inset-bottom))!important;text-align:center}
+}
+@media (max-width:820px){
+  #topbar{flex-wrap:wrap!important;overflow-x:visible!important;position:static!important}
+  #topbar>*{flex-shrink:1}
+  #topbar .topbar-btn{flex:1 1 auto}
+}
+@media print{#btnMenu,#navScrim{display:none!important}}
+
+</style>
+</head>
+<body>
+
+<div id="activation-screen">
+  <div class="act-box">
+    <div class="act-title">Cuadre de <span>Caja</span></div>
+    <div class="act-sub">Activación requerida</div>
+    <div class="act-field"><label>Nombre del negocio / cliente</label><input id="act_nombre" type="text" placeholder="Ej: Bodega El Rincón"></div>
+    <div class="act-field"><label>Código de activación</label><input id="act_codigo" type="text" placeholder="XXXX-XXXX" style="text-transform:uppercase"></div>
+    <button class="act-btn" onclick="activar()">Activar</button>
+    <div class="act-err" id="act-error"></div>
+  </div>
+</div>
+
+<div id="app-wrap">
+<div id="topbar">
+  <div class="logo-text"><div class="l1">Cuadre de <span>Caja</span></div><div class="l2" id="logo-subtitulo">CUADRE RÁPIDO DE EFECTIVO</div></div>
+  <div class="spacer"></div>
+  <div class="licencia-badge" id="licencia-badge"></div>
+  <div style="display:flex;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:2px">
+    <button class="topbar-btn" style="padding:6px 10px" onclick="ajustarFuente(-1)" title="Letra más pequeña">A−</button>
+    <button class="topbar-btn" style="padding:6px 10px;font-weight:900" onclick="ajustarFuente(1)" title="Letra más grande">A+</button>
+  </div>
+  <button class="topbar-btn" id="btn-contraste" onclick="toggleContraste()" title="Fondo blanco, letra negra grande">☀️ Alto Contraste</button>
+  <button class="topbar-btn no-print" onclick="cambiarLicencia()">🔓 Cambiar licencia</button>
+  <button class="topbar-btn" onclick="prepararImpresion();window.print()">🖨️ Imprimir</button>
+  <button class="topbar-btn no-print" onclick="document.getElementById('archivo-importar').click()">📥 Importar</button>
+  <input type="file" id="archivo-importar" accept=".json,application/json" style="display:none" onchange="importarJSON(this)">
+  <button class="topbar-btn primary" onclick="exportarJSON()">📤 Compartir / Exportar</button>
+</div>
+
+<main>
+  <div class="view-title">💵 Cuadre de Caja del Día</div>
+
+  <div class="card" id="card_encab">
+    <div class="card-title">Encabezamiento</div>
+    <div class="form-grid">
+      <div class="field"><label>Fecha</label><input id="h_fecha" type="date" onchange="guardar()"></div>
+      <div class="field"><label>Responsable del cuadre</label><input id="h_responsable" type="text" oninput="guardar()"></div>
+      <div class="field"><label>Turno / Punto de venta</label><input id="h_turno" type="text" oninput="guardar()"></div>
+    </div>
+  </div>
+
+  <div class="card" id="card_denom">
+    <div class="card-title">💵 Conteo de Efectivo por Denominación (CUP)</div>
+    <div id="denominaciones"></div>
+    <div class="resumen-row total" style="margin-top:6px">
+      <span class="lbl">Total Efectivo Contado</span><span class="val" id="r_efectivo_total">0.00</span>
+    </div>
+  </div>
+
+  <div class="card" id="card_otros">
+    <div class="card-title">Otros medios de pago</div>
+    <div class="resumen-row"><span class="lbl">Pagos por transferencia</span><span class="val"><input id="r_transferencia" type="number" step="0.01" value="0" oninput="recalcular()"></span></div>
+    <div class="resumen-row"><span class="lbl">Deudas (ventas fiadas)</span><span class="val"><input id="r_deudas" type="number" step="0.01" value="0" oninput="recalcular()"></span></div>
+  </div>
+
+  <div class="card" id="card_resumen">
+    <div class="card-title">Resumen y Cuadre</div>
+    <div class="resumen-row"><span class="lbl">Total ventas del día (según reporte/IPV)</span><span class="val"><input id="r_ventas" type="number" step="0.01" value="0" oninput="recalcular()"></span></div>
+    <div class="resumen-row total"><span class="lbl">Total (Efectivo + Transferencia + Deudas)</span><span class="val" id="r_recibido">0.00</span></div>
+    <div class="resumen-row total"><span class="lbl">Diferencia de Cuadre</span><span class="val" id="r_diferencia">0.00</span></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">Positivo = sobrante en caja &nbsp;|&nbsp; Negativo = faltante en caja</div>
+  </div>
+
+  <div class="card" id="card_obs">
+    <div class="card-title">Observaciones</div>
+    <textarea id="h_observaciones" rows="5" placeholder="Anote aquí las deudas (cliente, monto, fecha) y el cumplimiento de su pago..." oninput="guardar()"></textarea>
+  </div>
+
+  <div class="card" id="card_firmas">
+    <div class="card-title">Firmas</div>
+    <div class="firma-box">
+      <div class="firma-field">
+        <label>Nombre dependiente</label><input id="f_cuadra" type="text" oninput="guardar()">
+        <div class="firma-line">Firma</div>
+      </div>
+      <div class="firma-field">
+        <label>Nombre supervisor</label><input id="f_verifica" type="text" oninput="guardar()">
+        <div class="firma-line">Firma</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="toast"></div>
+</div>
+
+<script>
+const CUP=v=>isNaN(v)?'0.00':Number(v).toLocaleString('es-CU',{minimumFractionDigits:2,maximumFractionDigits:2});
+const today=()=>new Date().toISOString().slice(0,10);
+let toastT;
+function toast(msg,err=false){const e=document.getElementById('toast');e.textContent=msg;e.className=err?'error show':'show';clearTimeout(toastT);toastT=setTimeout(()=>e.className='',2600);}
+function g(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+function gn(id){return parseFloat(g(id))||0;}
+
+const DENOMINACIONES=[20000,10000,5000,2000,1000,500,200,100,50,20,10,5,3,1];
+
+function renderDenominaciones(){
+  const cont=document.getElementById('denominaciones');
+  cont.innerHTML=DENOMINACIONES.map(d=>`
+    <div class="denom-row" id="row_${d}">
+      <div class="denom-label">$${d}</div>
+      <input type="number" min="0" step="1" id="d_${d}" placeholder="0" oninput="recalcular()">
+      <div class="denom-sub" id="sub_${d}">0.00</div>
+    </div>
+  `).join('');
+}
+function totalEfectivo(){
+  let total=0;
+  DENOMINACIONES.forEach(d=>{
+    const cant=parseInt(document.getElementById('d_'+d).value)||0;
+    const sub=cant*d;
+    document.getElementById('sub_'+d).textContent=CUP(sub);
+    total+=sub;
+  });
+  return total;
+}
+function recalcular(){
+  const efectivo=totalEfectivo();
+  document.getElementById('r_efectivo_total').textContent=CUP(efectivo);
+  const transferencia=gn('r_transferencia'),deudas=gn('r_deudas'),ventas=gn('r_ventas');
+  const recibido=efectivo+transferencia+deudas;
+  document.getElementById('r_recibido').textContent=CUP(recibido);
+  const dif=recibido-ventas;
+  const de=document.getElementById('r_diferencia');
+  de.textContent=CUP(dif);
+  de.className='val '+(Math.abs(dif)<0.01?'diff-ok':'diff-bad');
+  guardar();
+}
+
+// ------- Guardar / cargar por fecha -------
+function keyDia(fecha){return 'cuadre_caja_'+fecha;}
+function guardar(){
+  const fecha=document.getElementById('h_fecha').value||today();
+  const denom={};DENOMINACIONES.forEach(d=>denom[d]=document.getElementById('d_'+d).value);
+  const data={
+    fecha,responsable:g('h_responsable'),turno:g('h_turno'),denom,
+    transferencia:g('r_transferencia'),deudas:g('r_deudas'),ventas:g('r_ventas'),observaciones:g('h_observaciones'),
+    f_cuadra:g('f_cuadra'),f_verifica:g('f_verifica')
+  };
+  try{
+    localStorage.setItem(keyDia(fecha),JSON.stringify(data));
+    let idx=JSON.parse(localStorage.getItem('cuadre_caja_indice')||'[]');
+    if(!idx.includes(fecha)){idx.push(fecha);localStorage.setItem('cuadre_caja_indice',JSON.stringify(idx));}
+  }catch(e){}
+}
+function cargarFecha(fecha){
+  const s=localStorage.getItem(keyDia(fecha));
+  if(s){
+    const d=JSON.parse(s);
+    document.getElementById('h_responsable').value=d.responsable||'';
+    document.getElementById('h_turno').value=d.turno||'';
+    DENOMINACIONES.forEach(den=>{const t=(parseInt(d.denom&&d.denom[den])||0)+(parseInt(d.pacas&&d.pacas[den])||0)*(parseInt(d.porPaca)||100);document.getElementById('d_'+den).value=t||'';});
+    document.getElementById('r_transferencia').value=d.transferencia||0;
+    document.getElementById('r_deudas').value=d.deudas||0;
+    document.getElementById('h_observaciones').value=d.observaciones||'';
+    document.getElementById('r_ventas').value=d.ventas||0;
+    document.getElementById('f_cuadra').value=d.f_cuadra||'';
+    document.getElementById('f_verifica').value=d.f_verifica||'';
+  }else{
+    document.getElementById('h_responsable').value='';
+    document.getElementById('h_turno').value='';
+    DENOMINACIONES.forEach(den=>document.getElementById('d_'+den).value='');
+    document.getElementById('r_transferencia').value=0;
+    document.getElementById('r_deudas').value=0;
+    document.getElementById('h_observaciones').value='';
+    document.getElementById('r_ventas').value=0;
+    document.getElementById('f_cuadra').value='';
+    document.getElementById('f_verifica').value='';
+  }
+  recalcular();
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const fe=document.getElementById('h_fecha');
+  if(fe)fe.addEventListener('change',()=>cargarFecha(fe.value));
+});
+
+// ------- Impresión: solo recuadros con datos (firmas siempre) -------
+function prepararImpresion(){
+  document.querySelectorAll('.np').forEach(e=>e.classList.remove('np'));
+  const ocultar=(e,c)=>{if(e&&c)e.classList.add('np');};
+  const $=id=>document.getElementById(id);
+  let hay=false;
+  ['h_fecha','h_responsable','h_turno'].forEach(id=>{const vacio=!$(id).value.trim();ocultar($(id).closest('.field'),vacio);if(!vacio)hay=true;});
+  ocultar($('card_encab'),!hay);
+  let hayDen=false;
+  DENOMINACIONES.forEach(d=>{
+    const c=parseInt($('d_'+d).value)||0;
+    ocultar($('row_'+d),c===0);
+    if(c>0)hayDen=true;
+  });
+  ocultar($('card_denom'),!hayDen);
+  const t=gn('r_transferencia'),de=gn('r_deudas');
+  ocultar($('r_transferencia').closest('.resumen-row'),t===0);
+  ocultar($('r_deudas').closest('.resumen-row'),de===0);
+  ocultar($('card_otros'),t===0&&de===0);
+  const recibido=totalEfectivo()+t+de;
+  ocultar($('card_resumen'),gn('r_ventas')===0&&recibido===0);
+  ocultar($('card_obs'),!$('h_observaciones').value.trim());
+}
+window.addEventListener('beforeprint',prepararImpresion);
+
+// ------- Importar / Restaurar -------
+function importarJSON(input){
+  const f=input.files&&input.files[0];
+  input.value='';
+  if(!f)return;
+  const r=new FileReader();
+  r.onerror=()=>toast('No se pudo leer el archivo',true);
+  r.onload=()=>{
+    let d;
+    try{d=JSON.parse(r.result);}catch(e){toast('El archivo no es un cuadre válido',true);return;}
+    if(!d||typeof d!=='object'||!/^\d{4}-\d{2}-\d{2}$/.test(d.fecha||'')||(d.denominaciones===undefined&&d.denom===undefined)){
+      toast('El archivo no es un cuadre de caja exportado',true);return;
+    }
+    if(localStorage.getItem(keyDia(d.fecha))&&!confirm('Ya existe un cuadre guardado para el '+d.fecha+'.\n¿Reemplazarlo con el archivo importado?'))return;
+    const src=d.denominaciones||d.denom||{};
+    const denom={};
+    DENOMINACIONES.forEach(x=>{denom[x]=src[x]||'';});
+    const data={
+      fecha:d.fecha,responsable:d.responsable||'',turno:d.turno||'',denom,
+      transferencia:d.transferencia||0,deudas:d.deudas||0,
+      ventas:(d.total_ventas!==undefined?d.total_ventas:d.ventas)||0,
+      observaciones:d.observaciones||'',
+      f_cuadra:d.f_cuadra||'',f_verifica:d.f_verifica||''
+    };
+    try{
+      localStorage.setItem(keyDia(d.fecha),JSON.stringify(data));
+      let idx=JSON.parse(localStorage.getItem('cuadre_caja_indice')||'[]');
+      if(!idx.includes(d.fecha)){idx.push(d.fecha);localStorage.setItem('cuadre_caja_indice',JSON.stringify(idx));}
+    }catch(e){toast('No se pudo guardar el cuadre importado',true);return;}
+    document.getElementById('h_fecha').value=d.fecha;
+    cargarFecha(d.fecha);
+    toast('📥 Cuadre del '+d.fecha+' restaurado');
+  };
+  r.readAsText(f);
+}
+
+// ------- Exportar / Compartir -------
+async function exportarJSON(){
+  const fecha=document.getElementById('h_fecha').value||today();
+  const efectivo=totalEfectivo();
+  const transferencia=gn('r_transferencia'),deudas=gn('r_deudas'),ventas=gn('r_ventas');
+  const recibido=efectivo+transferencia+deudas;
+  const denomDetalle={};DENOMINACIONES.forEach(d=>{const c=parseInt(document.getElementById('d_'+d).value)||0;if(c)denomDetalle[d]=c;});
+  const data={
+    fecha,responsable:g('h_responsable'),turno:g('h_turno'),
+    denominaciones:denomDetalle,efectivo,transferencia,deudas,observaciones:g('h_observaciones'),
+    total_ventas:ventas,total_recibido:recibido,diferencia:recibido-ventas,
+    f_cuadra:g('f_cuadra'),f_verifica:g('f_verifica')
+  };
+  const nombreArchivo=`Cuadre_Caja_${fecha.replace(/-/g,'')}.json`;
+  const contenido=JSON.stringify(data,null,2);
+  const file=new File([contenido],nombreArchivo,{type:'application/json'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:'Cuadre de Caja '+fecha,text:NOMBRE_NEGOCIO});toast('📤 Cuadre compartido');return;}
+    catch(e){if(e.name==='AbortError')return;}
+  }
+  const b=new Blob([contenido],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nombreArchivo;a.click();
+  toast('📤 Cuadre exportado');
+}
+
+// ------- Accesibilidad -------
+function ajustarFuente(delta){
+  let pct=parseInt(localStorage.getItem('cuadre_zoom'))||100;
+  pct=Math.max(80,Math.min(180,pct+delta*10));
+  document.body.style.zoom=pct+'%';
+  localStorage.setItem('cuadre_zoom',pct);
+}
+(function initFuente(){
+  const pct=parseInt(localStorage.getItem('cuadre_zoom'));
+  if(pct)document.body.style.zoom=pct+'%';
+})();
+function toggleContraste(){
+  const on=document.documentElement.classList.toggle('contraste');
+  localStorage.setItem('cuadre_contraste',on?'1':'0');
+  const btn=document.getElementById('btn-contraste');
+  if(btn)btn.textContent=on?'🌙 Contraste Normal':'☀️ Alto Contraste';
+}
+(function initContraste(){
+  if(localStorage.getItem('cuadre_contraste')==='1'){
+    document.documentElement.classList.add('contraste');
+    document.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById('btn-contraste');if(b)b.textContent='🌙 Contraste Normal';});
+  }
+})();
+
+// ------- Activación / Licencia -------
+const SECRETO_LICENCIA='CEIBA-CAJA-2026-M9RT';
+let NOMBRE_NEGOCIO='';
+function hashStr(s){let h=5381;for(let i=0;i<s.length;i++){h=((h*33)^s.charCodeAt(i))>>>0;}return h;}
+function codigoParaCliente(nombre){
+  const base=hashStr(nombre.trim().toLowerCase()+'|'+SECRETO_LICENCIA);
+  const s=base.toString(36).toUpperCase().padStart(8,'0').slice(0,8);
+  return s.slice(0,4)+'-'+s.slice(4,8);
+}
+function normalizarCodigo(s){
+  return s.trim().toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/O/g,'0').replace(/L/g,'1');
+}
+function iniciarApp(nombreLicencia){
+  NOMBRE_NEGOCIO=nombreLicencia;
+  document.getElementById('activation-screen').style.display='none';
+  document.getElementById('app-wrap').style.display='block';
+  document.getElementById('licencia-badge').textContent='🔒 Licencia: '+nombreLicencia;
+  document.getElementById('logo-subtitulo').textContent=nombreLicencia.toUpperCase()+' · CUADRE RÁPIDO DE EFECTIVO';
+  renderDenominaciones();
+  document.getElementById('h_fecha').value=today();
+  cargarFecha(today());
+}
+function cambiarLicencia(){
+  if(!confirm('¿Cerrar la licencia actual en este navegador? Sus datos guardados NO se pierden.'))return;
+  localStorage.removeItem('cuadre_licencia');
+  location.reload();
+}
+function activar(){
+  const nombre=document.getElementById('act_nombre').value.trim();
+  const codigo=document.getElementById('act_codigo').value.trim().toUpperCase();
+  const err=document.getElementById('act-error');
+  if(!nombre||!codigo){err.textContent='Complete el nombre y el código.';return;}
+  if(normalizarCodigo(codigoParaCliente(nombre))!==normalizarCodigo(codigo)){err.textContent='Código incorrecto para ese nombre. Verifique con quien le entregó el programa.';return;}
+  err.textContent='';
+  localStorage.setItem('cuadre_licencia',JSON.stringify({nombre,codigo}));
+  iniciarApp(nombre);
+}
+(function comprobarLicencia(){
+  try{
+    const lic=JSON.parse(localStorage.getItem('cuadre_licencia')||'null');
+    if(lic&&lic.nombre&&codigoParaCliente(lic.nombre)===lic.codigo){
+      iniciarApp(lic.nombre);
+    }
+  }catch(e){}
+})();
+</script>
+<script>
+/* ===== Menú móvil + registro PWA ===== */
+(function(){
+  function ready(fn){document.readyState!=='loading'?fn():document.addEventListener('DOMContentLoaded',fn)}
+  ready(function(){
+    var sb=document.getElementById('sidebar'),tb=document.getElementById('topbar');
+    if(sb&&tb&&!document.getElementById('btnMenu')){
+      var b=document.createElement('button');b.id='btnMenu';b.className='topbar-btn no-print';b.type='button';b.setAttribute('aria-label','Menú');b.textContent='☰';
+      b.onclick=function(){document.body.classList.toggle('nav-open')};
+      tb.insertBefore(b,tb.firstChild);
+      var s=document.createElement('div');s.id='navScrim';s.onclick=function(){document.body.classList.remove('nav-open')};
+      document.body.appendChild(s);
+      sb.addEventListener('click',function(e){if(e.target.closest('.nav-item'))document.body.classList.remove('nav-open')});
+    }
+  });
+  if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+    window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+  }
+})();
+
+</script>
+</body>
+</html>

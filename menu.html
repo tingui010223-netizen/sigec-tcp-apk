@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0D1B2A">
+<title>SIGEC</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#0D1B2A;overflow:hidden}
+body{display:flex;flex-direction:column;font-family:system-ui,'Segoe UI',Roboto,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+#barra{flex:0 0 46px;height:46px;display:flex;align-items:center;padding:0 4px 0 14px;background:#0D1B2A;border-bottom:1px solid #2A4A68;color:#fff}
+#titulo{flex:1;font-size:15px;font-weight:700;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#btnMenu{width:46px;height:46px;border:0;background:transparent;color:#fff;cursor:pointer;border-radius:10px;display:flex;align-items:center;justify-content:center}
+#btnMenu:active{background:rgba(255,255,255,.14)}
+#btnMenu svg{width:24px;height:24px;fill:currentColor}
+#marcos{flex:1 1 auto;position:relative;min-height:0;background:#0D1B2A}
+#marcos iframe{position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;border:0;display:none;background:#0D1B2A}
+#marcos iframe.activo{display:block}
+#velo{position:fixed;top:0;left:0;right:0;bottom:0;display:none;z-index:50}
+#menu{position:fixed;right:8px;top:calc(env(safe-area-inset-top,0px) + 48px);min-width:210px;background:#142030;border:1px solid #3D6690;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.5);padding:6px;display:none;z-index:60}
+#menu button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:0 14px;border:0;background:transparent;color:#fff;font-size:16px;text-align:left;border-radius:8px;cursor:pointer}
+#menu button:active{background:rgba(255,255,255,.14)}
+#menu button.actual{color:#1FD9C4;font-weight:700}
+#menu button .marca{font-size:16px}
+body.abierto #velo,body.abierto #menu{display:block}
+</style>
+</head>
+<body>
+<div id="barra">
+  <div id="titulo">Cargando…</div>
+  <button id="btnMenu" type="button" aria-label="Cambiar de proyecto" aria-haspopup="true" aria-expanded="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="12" cy="19" r="2.2"/></svg>
+  </button>
+</div>
+<div id="marcos"></div>
+<div id="velo"></div>
+<div id="menu" role="menu"></div>
+
+<script>
+(function(){
+  /* Para agregar otro proyecto: copia una línea de esta lista y cambia nombre y archivo */
+  var PROYECTOS=[
+    {id:'almacen',nombre:'Almacén',archivo:'almacen.html'},
+    {id:'cuadre', nombre:'cuadre caja',archivo:'cuadre.html'},
+    {id:'sigec',  nombre:'sigec',archivo:'sigec.html'}
+  ];
+  var CLAVE='menu_proyecto_actual';
+
+  var elTitulo=document.getElementById('titulo');
+  var elMarcos=document.getElementById('marcos');
+  var elMenu=document.getElementById('menu');
+  var btn=document.getElementById('btnMenu');
+  var velo=document.getElementById('velo');
+  var actual=null;
+
+  function leer(){ try{ return localStorage.getItem(CLAVE); }catch(e){ return null; } }
+  function guardar(v){ try{ localStorage.setItem(CLAVE,v); }catch(e){} }
+  function buscar(id){ for(var i=0;i<PROYECTOS.length;i++){ if(PROYECTOS[i].id===id) return PROYECTOS[i]; } return null; }
+
+  function abrirMenu(){ document.body.classList.add('abierto'); btn.setAttribute('aria-expanded','true'); }
+  function cerrarMenu(){ document.body.classList.remove('abierto'); btn.setAttribute('aria-expanded','false'); }
+
+  function pintarMenu(){
+    elMenu.innerHTML='';
+    PROYECTOS.forEach(function(p){
+      var b=document.createElement('button');
+      b.type='button';
+      b.setAttribute('role','menuitem');
+      if(p.id===actual) b.className='actual';
+      var t=document.createElement('span'); t.textContent=p.nombre; b.appendChild(t);
+      var m=document.createElement('span'); m.className='marca'; m.textContent=(p.id===actual?'✓':''); b.appendChild(m);
+      b.addEventListener('click',function(){ cerrarMenu(); mostrar(p.id); });
+      elMenu.appendChild(b);
+    });
+  }
+
+  function mostrar(id){
+    var p=buscar(id)||PROYECTOS[0];
+    actual=p.id;
+    var marco=document.getElementById('marco-'+p.id);
+    if(!marco){
+      marco=document.createElement('iframe');
+      marco.id='marco-'+p.id;
+      marco.title=p.nombre;
+      marco.src=p.archivo;
+      elMarcos.appendChild(marco);
+    }
+    var todos=elMarcos.getElementsByTagName('iframe');
+    for(var i=0;i<todos.length;i++){ todos[i].classList.remove('activo'); }
+    marco.classList.add('activo');
+    elTitulo.textContent=p.nombre;
+    guardar(p.id);
+    pintarMenu();
+  }
+
+  btn.addEventListener('click',function(){
+    if(document.body.classList.contains('abierto')) cerrarMenu(); else abrirMenu();
+  });
+  velo.addEventListener('click',cerrarMenu);
+
+  mostrar(leer());
+})();
+</script>
+</body>
+</html>
