@@ -19,9 +19,12 @@ jobs:
       - name: Preparar la app
         run: |
           mkdir -p www
-          cp Almacen_Control_Inventario_v7_3_2.html www/index.html
+          cp menu.html www/index.html
+          cp Almacen_Control_Inventario_v7_3_2.html www/almacen.html
+          cp cuadre.html www/cuadre.html
+          cp sigec.html www/sigec.html
           cp node_modules/jsbarcode/dist/JsBarcode.all.min.js www/
-          sed -i 's#https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js#JsBarcode.all.min.js#' www/index.html
+          sed -i 's#https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js#JsBarcode.all.min.js#' www/almacen.html
       - name: Crear proyecto Android
         run: |
           npx cap add android
