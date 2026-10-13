@@ -56,6 +56,20 @@ body.abierto #velo,body.abierto #menu{display:block}
 
   function leer(){ try{ return localStorage.getItem(CLAVE); }catch(e){ return null; } }
   function guardar(v){ try{ localStorage.setItem(CLAVE,v); }catch(e){} }
+  function almacenActivo(){
+    try{
+      var e=localStorage.getItem('tmg_license_exp')||'';
+      return !!e && e>=new Date().toISOString().slice(0,10);
+    }catch(x){ return false; }
+  }
+  function anotarDiasPrevios(){
+    try{
+      if(localStorage.getItem('sigec_sync_base')===null){
+        var a=JSON.parse(localStorage.getItem('almacen_app_v1')||'{}');
+        localStorage.setItem('sigec_sync_base',JSON.stringify(Object.keys(a.confirmedDays||{})));
+      }
+    }catch(e){}
+  }
   function buscar(id){ for(var i=0;i<PROYECTOS.length;i++){ if(PROYECTOS[i].id===id) return PROYECTOS[i]; } return null; }
 
   function abrirMenu(){ document.body.classList.add('abierto'); btn.setAttribute('aria-expanded','true'); }
@@ -84,11 +98,22 @@ body.abierto #velo,body.abierto #menu{display:block}
       marco.id='marco-'+p.id;
       marco.title=p.nombre;
       marco.src=p.archivo;
+      marco.setAttribute('data-lic',String(almacenActivo()));
       elMarcos.appendChild(marco);
+    } else if(p.id!=='almacen' && marco.getAttribute('data-lic')!==String(almacenActivo())){
+      /* Almacén se activó (o venció) después de abrir este proyecto: se recarga para que lo note */
+      marco.setAttribute('data-lic',String(almacenActivo()));
+      try{ marco.contentWindow.location.reload(); }catch(e){ marco.src=p.archivo; }
     }
     var todos=elMarcos.getElementsByTagName('iframe');
     for(var i=0;i<todos.length;i++){ todos[i].classList.remove('activo'); }
     marco.classList.add('activo');
+    if(p.id==='sigec'){
+      try{
+        var w=marco.contentWindow;
+        if(w && typeof w.sincronizarDesdeAlmacen==='function') w.sincronizarDesdeAlmacen();
+      }catch(e){}
+    }
     elTitulo.textContent=p.nombre;
     guardar(p.id);
     pintarMenu();
@@ -99,6 +124,7 @@ body.abierto #velo,body.abierto #menu{display:block}
   });
   velo.addEventListener('click',cerrarMenu);
 
+  anotarDiasPrevios();
   mostrar(leer());
 })();
 </script>
